@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ojas Kale's Snake Arcade</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="title-banner">
+            <span class="title-welcome">Welcome to</span>
+            <span class="title-name">Ojas Kale's Arcade</span>
+            <span class="title-game">Snake Game</span>
+        </div>
+        <div class="game-wrapper">
+            <div class="score-board">
+                <span class="score-label">SCORE</span>
+                <span id="scoreDisplay">0</span>
+            </div>
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <p class="swipe-hint">Swipe the canvas to steer · Arrow keys on desktop</p>
+        </div>
+    </div>
+
+    <div id="nameOverlay" class="overlay">
+        <div class="overlay-box">
+            <h2>Enter Your Name</h2>
+            <p class="overlay-sub">Join the leaderboard!</p>
+            <input type="text" id="nameInput" maxlength="20" placeholder="Your name..." autocomplete="off">
+            <button id="nameSubmitBtn">START GAME</button>
+        </div>
+    </div>
+
+    <div id="gameOverOverlay" class="overlay hidden">
+        <div class="overlay-box">
+            <h2 class="go-title">GAME OVER</h2>
+            <p class="go-score">Score: <span id="finalScore">0</span></p>
+            <p class="go-recommend">Ojas recommends you to</p>
+            <button id="restartBtn">PLAY AGAIN</button>
+            <div class="leaderboard">
+                <h3>HIGH SCORES</h3>
+                <ol id="scoreList"></ol>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
