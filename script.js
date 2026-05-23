@@ -17,18 +17,47 @@ const LS_KEY = 'ojas_snake_scores';
 let snake, direction, buffer, apple, score, gameOver, gameLoopId;
 let playerName = '';
 
-// ---- AUDIO ----
-const eatSound = new Audio('sounds/eat.mp3');
-const collisionSound = new Audio('sounds/boing.wav');
+// ---- AUDIO (Web Audio API — works on iOS) ----
 let audioCtx = null;
+let eatBuffer = null;
+let collisionBuffer = null;
 
 function initAudio() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx) return audioCtx;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    loadSound('sounds/eat.mp3').then(b => eatBuffer = b).catch(() => {});
+    loadSound('sounds/boing.wav').then(b => collisionBuffer = b).catch(() => {});
+    return audioCtx;
+}
+
+function resumeAudio() {
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+async function loadSound(url) {
+    try {
+        const res = await fetch(url);
+        const buf = await res.arrayBuffer();
+        return await audioCtx.decodeAudioData(buf);
+    } catch (e) { return null; }
+}
+
+function playBuffer(buffer, volume) {
+    if (!audioCtx || !buffer) return;
+    resumeAudio();
+    const src = audioCtx.createBufferSource();
+    const gain = audioCtx.createGain();
+    gain.gain.value = volume || 0.5;
+    src.buffer = buffer;
+    src.connect(gain);
+    gain.connect(audioCtx.destination);
+    src.start();
 }
 
 function playTone(freq, duration, type, volume) {
     try {
         initAudio();
+        resumeAudio();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = type || 'square';
@@ -42,13 +71,9 @@ function playTone(freq, duration, type, volume) {
     } catch (e) {}
 }
 
-function playEatSound() {
-    try { eatSound.currentTime = 0; eatSound.play(); } catch (e) {}
-}
+function playEatSound() { playBuffer(eatBuffer, 0.4); }
 
-function playCollisionSound() {
-    try { collisionSound.currentTime = 0; collisionSound.play(); } catch (e) {}
-}
+function playCollisionSound() { playBuffer(collisionBuffer, 0.5); }
 
 function playGameOverSound() {
     playTone(400, 0.15, 'square', 0.12);
@@ -143,7 +168,7 @@ function spawnApple() {
 // ---- DIRECTION BUFFERING ----
 function setDirection(x, y) {
     if (gameOver) return;
-    try { initAudio(); } catch (e) {}
+    try { initAudio(); resumeAudio(); } catch (e) {}
     const last = buffer.length > 0 ? buffer[buffer.length - 1] : direction;
     if (last.x === x && last.y === y) return;
     if (last.x + x === 0 && last.y + y === 0) return;
