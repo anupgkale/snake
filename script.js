@@ -71,7 +71,12 @@ function playTone(freq, duration, type, volume) {
     } catch (e) {}
 }
 
-function playEatSound() { playBuffer(eatBuffer, 0.4); }
+function playEatSound() {
+    if (eatBuffer) { playBuffer(eatBuffer, 0.4); return; }
+    playTone(660, 0.06, 'square', 0.10);
+    setTimeout(() => playTone(880, 0.06, 'square', 0.08), 40);
+    setTimeout(() => playTone(1100, 0.08, 'square', 0.07), 80);
+}
 
 function playCollisionSound() { playBuffer(collisionBuffer, 0.5); }
 
